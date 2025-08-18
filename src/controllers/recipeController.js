@@ -4,9 +4,9 @@ import { Op, Sequelize } from "sequelize";
 import User from "../models/userModel.js";
 
 
-// ===============================
+
 // CREATE a recipe
-// ===============================
+
 export const createRecipe = async (req, res) => {
   const { title, ingredients, instructions, dietaryPreference, difficulty, prepTime } = req.body;
 
@@ -50,9 +50,9 @@ export const createRecipe = async (req, res) => {
 };
 
 
-// ===============================
+
 // UPDATE (Edit) recipe
-// ===============================
+
 export const updateRecipe = async (req, res) => {
   const { id } = req.params;
   const { title, ingredients, instructions, imageUrl, dietaryPreference, difficulty, prepTime } = req.body;
@@ -67,7 +67,7 @@ export const updateRecipe = async (req, res) => {
       });
     }
 
-    let fileUrl = imageUrl; // keep old image unless new uploaded
+    let fileUrl = imageUrl; 
 
     if (req.file) {
       const cloudinaryresponse = await uploadOnCloudinary(req.file.path);
@@ -94,9 +94,9 @@ export const updateRecipe = async (req, res) => {
 };
 
 
-// ===============================
+
 // DELETE recipe
-// ===============================
+
 export const deleteRecipe = async (req, res) => {
   const { id } = req.params;
 
@@ -120,9 +120,9 @@ export const deleteRecipe = async (req, res) => {
 };
 
 
-// ===============================
+
 // GET all recipes
-// ===============================
+
 export const getAllRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.findAll({
@@ -138,9 +138,9 @@ export const getAllRecipes = async (req, res) => {
 };
 
 
-// ===============================
+
 // GET single recipe by ID
-// ===============================
+
 export const getRecipeById = async (req, res) => {
   const { id } = req.params;
 
