@@ -5,18 +5,20 @@ import {
   deleteRecipe,
   getAllRecipes,
   getRecipeById,
+  searchRecipes,
 } from "../controllers/recipeController.js";
-import  authUser  from "../middleware/authMiddleware.js";
-import {upload} from '../middleware/multerMiddleware.js'
+import authUser from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/multerMiddleware.js";
 
 const router = express.Router();
 
 // Public
 router.get("/", getAllRecipes);
+router.get("/search", searchRecipes);  // 👈 new endpoint
 router.get("/:id", getRecipeById);
 
 // Protected
-router.post("/", authUser, upload.single('image'), createRecipe);
+router.post("/", authUser, upload.single("image"), createRecipe);
 router.put("/:id", authUser, updateRecipe);
 router.delete("/:id", authUser, deleteRecipe);
 

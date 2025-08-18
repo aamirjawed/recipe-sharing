@@ -1,9 +1,14 @@
 import Recipe from "../models/recipeModel.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { Op, Sequelize } from "sequelize";
+import User from "../models/userModel.js";
 
+
+// ===============================
 // CREATE a recipe
+// ===============================
 export const createRecipe = async (req, res) => {
-  const { title, ingredients, instructions } = req.body;
+  const { title, ingredients, instructions, dietaryPreference, difficulty, prepTime } = req.body;
 
   if (!title || !ingredients || !instructions) {
     return res.status(400).json({
@@ -16,27 +21,22 @@ export const createRecipe = async (req, res) => {
     let fileUrl = null;
 
     if (req.file) {
-  console.log("Uploading file to Cloudinary:", req.file.path);
-  const cloudinaryresponse = await uploadOnCloudinary(req.file.path);
-  if (cloudinaryresponse) {
-    fileUrl = cloudinaryresponse.secure_url;
-    console.log("Final image URL:", fileUrl);
-  } else {
-    console.error("Cloudinary upload failed, fileUrl still null");
-  }
-}
-
-
+      const cloudinaryresponse = await uploadOnCloudinary(req.file.path);
+      if (cloudinaryresponse) {
+        fileUrl = cloudinaryresponse.secure_url;
+      }
+    }
 
     const recipe = await Recipe.create({
       title,
       ingredients,
       instructions,
       imageUrl: fileUrl,
+      dietaryPreference,
+      difficulty,
+      prepTime,
       userId: req.userId,
     });
-
-    console.log("Uploaded file:", req.file);
 
     res.status(201).json({
       success: true,
@@ -44,19 +44,18 @@ export const createRecipe = async (req, res) => {
       data: recipe,
     });
   } catch (error) {
-    console.error("Error creating recipe in recipe controller:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error("Error creating recipe:", error.message);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 
-// EDIT (Update) recipe
+// ===============================
+// UPDATE (Edit) recipe
+// ===============================
 export const updateRecipe = async (req, res) => {
   const { id } = req.params;
-  const { title, ingredients, instructions, imageUrl } = req.body;
+  const { title, ingredients, instructions, imageUrl, dietaryPreference, difficulty, prepTime } = req.body;
 
   try {
     const recipe = await Recipe.findOne({ where: { id, userId: req.userId } });
@@ -68,7 +67,24 @@ export const updateRecipe = async (req, res) => {
       });
     }
 
-    await recipe.update({ title, ingredients, instructions, imageUrl });
+    let fileUrl = imageUrl; // keep old image unless new uploaded
+
+    if (req.file) {
+      const cloudinaryresponse = await uploadOnCloudinary(req.file.path);
+      if (cloudinaryresponse) {
+        fileUrl = cloudinaryresponse.secure_url;
+      }
+    }
+
+    await recipe.update({
+      title,
+      ingredients,
+      instructions,
+      imageUrl: fileUrl,
+      dietaryPreference,
+      difficulty,
+      prepTime,
+    });
 
     res.json({ success: true, message: "Recipe updated", data: recipe });
   } catch (error) {
@@ -77,7 +93,10 @@ export const updateRecipe = async (req, res) => {
   }
 };
 
+
+// ===============================
 // DELETE recipe
+// ===============================
 export const deleteRecipe = async (req, res) => {
   const { id } = req.params;
 
@@ -100,7 +119,10 @@ export const deleteRecipe = async (req, res) => {
   }
 };
 
-// GET all recipes (for testing / feed)
+
+// ===============================
+// GET all recipes
+// ===============================
 export const getAllRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.findAll({
@@ -115,7 +137,10 @@ export const getAllRecipes = async (req, res) => {
   }
 };
 
-// GET single recipe
+
+// ===============================
+// GET single recipe by ID
+// ===============================
 export const getRecipeById = async (req, res) => {
   const { id } = req.params;
 
@@ -132,3 +157,73 @@ export const getRecipeById = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+
+// SEARCH + FILTER recipes
+
+
+export const searchRecipes = async (req, res) => {
+  try {
+    const { q, dietaryPreference, difficulty, maxPrepTime } = req.query;
+
+    let whereConditions = {};
+
+    // Safe text search using Sequelize operators
+    if (q && q.trim()) {
+      const searchTerm = q.trim();
+      whereConditions.title = {
+        [Op.like]: `%${searchTerm}%` 
+      };
+    }
+
+    // Validate and filter dietary preference
+    const validDietaryPreferences = ['vegetarian', 'vegan', 'gluten-free', 'non-veg'];
+    if (dietaryPreference && validDietaryPreferences.includes(dietaryPreference)) {
+      whereConditions.dietaryPreference = dietaryPreference;
+    }
+
+    // Validate and filter difficulty
+    const validDifficulties = ['easy', 'medium', 'hard'];
+    if (difficulty && validDifficulties.includes(difficulty)) {
+      whereConditions.difficulty = difficulty;
+    }
+
+    // Validate and filter max prep time
+    if (maxPrepTime) {
+      const maxTime = parseInt(maxPrepTime, 10);
+      if (!isNaN(maxTime) && maxTime > 0) {
+        whereConditions.prepTime = {
+          [Op.lte]: maxTime
+        };
+      }
+    }
+
+    const recipes = await Recipe.findAll({
+      where: whereConditions,
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'fullName', 'email']
+        }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: 100, 
+    });
+
+    res.json({
+      success: true,
+      count: recipes.length,
+      data: recipes,
+    });
+  } catch (error) {
+    console.error('Error searching recipes:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+};
+
+

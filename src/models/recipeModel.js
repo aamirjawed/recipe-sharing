@@ -22,7 +22,19 @@ const Recipe = sequelize.define("recipes", {
   },
   imageUrl: {
     type: DataTypes.STRING,
-    allowNull: true, // optional
+    allowNull: true,
+  },
+  dietaryPreference: {
+    type: DataTypes.ENUM("vegetarian", "vegan", "gluten-free", "non-veg"),
+    allowNull: true,
+  },
+  difficulty: {
+    type: DataTypes.ENUM("easy", "medium", "hard"),
+    allowNull: true,
+  },
+  prepTime: {
+    type: DataTypes.INTEGER, // minutes
+    allowNull: true,
   },
 });
 
