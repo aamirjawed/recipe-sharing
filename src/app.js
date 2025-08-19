@@ -5,6 +5,7 @@ import db from './db/db-connection.js'
 import authRoutes from './routes/authRoutes.js'
 import profileManageRoutes from './routes/profileManageRoute.js'
 import recipeRoutes from "./routes/recipeRoutes.js";
+import favoriteCollectionRoutes from './routes/favoriteCollectionRoutes.js'
 
 
 
@@ -38,7 +39,11 @@ app.use('/api/v1/user', authRoutes)
 // manage profile
 app.use('/api/v1/user', profileManageRoutes)
 
+// recipe routes
 app.use("/api/v1/recipes", recipeRoutes);
+
+// favorite collection routes
+app.use("/api/v1/favorites", favoriteCollectionRoutes);
 
 
 

@@ -14,7 +14,7 @@ const router = express.Router();
 
 // Public
 router.get("/", getAllRecipes);
-router.get("/search", searchRecipes);  // 👈 new endpoint
+router.get("/search", searchRecipes); 
 router.get("/:id", getRecipeById);
 
 // Protected
