@@ -1,11 +1,13 @@
 import Recipe from "../models/recipeModel.js";
 import Review from "../models/reviewModel.js";
 import User from "../models/userModel.js";
+import Activity from "../models/activityModel.js";
 
+// ==================== ADD OR UPDATE REVIEW ====================
 export const addOrUpdateReview = async (req, res) => {
     try {
-        const { recipeId, rating } = req.body
-        const userId = req.userId
+        const { recipeId, rating } = req.body;
+        const userId = req.userId;
 
         if (!recipeId || !rating) {
             return res.status(400).json({
@@ -14,7 +16,7 @@ export const addOrUpdateReview = async (req, res) => {
             });
         }
 
-        const recipe = await Recipe.findByPk(recipeId)
+        const recipe = await Recipe.findByPk(recipeId);
         if (!recipe) {
             return res.status(404).json({
                 success: false,
@@ -22,13 +24,19 @@ export const addOrUpdateReview = async (req, res) => {
             });
         }
 
-        let review = await Review.findOne({
-            where: { recipeId, userId }
-        });
+        let review = await Review.findOne({ where: { recipeId, userId } });
 
         if (review) {
             review.rating = rating;
-            await review.save()
+            await review.save();
+
+            // Log activity for updating review
+            await Activity.create({
+                type: "review",
+                userId,
+                recipeId,
+                description: `Updated review for recipe: "${recipe.title}"`,
+            });
 
             return res.status(200).json({
                 success: true,
@@ -37,30 +45,36 @@ export const addOrUpdateReview = async (req, res) => {
             });
         }
 
-        review = await Review.create({
-            recipeId, userId, rating
-        })
+        review = await Review.create({ recipeId, userId, rating });
 
-        res.status(201).json({
+        // Log activity for adding new review
+        await Activity.create({
+            type: "review",
+            userId,
+            recipeId,
+            description: `Added a new review for recipe: "${recipe.title}"`,
+        });
+
+        return res.status(201).json({
             success: true,
             message: "Review added successfully",
             data: review,
-        })
+        });
     } catch (error) {
-        console.log("Error in add or update review in review controller", error.message);
-        console.log("Full error", error)
-        res.status(500).json({
+        console.error("Error in add or update review:", error);
+        return res.status(500).json({
             success: false,
             message: "Something went wrong while adding or updating review",
         });
     }
-}
+};
 
+// ==================== GET REVIEWS BY RECIPE ====================
 export const getReviewsByRecipe = async (req, res) => {
     try {
-        const { recipeId } = req.params
+        const { recipeId } = req.params;
 
-        const recipe = await Recipe.findByPk(recipeId)
+        const recipe = await Recipe.findByPk(recipeId);
         if (!recipe) {
             return res.status(404).json({
                 success: false,
@@ -73,33 +87,32 @@ export const getReviewsByRecipe = async (req, res) => {
             include: [
                 {
                     model: User,
-                    attributes: ["id", "fullName", "email"]
-                }
+                    attributes: ["id", "fullName", "email"],
+                },
             ],
-            order: [["createdAt", "DESC"]]
-        })
+            order: [["createdAt", "DESC"]],
+        });
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message: `Reviews for recipe ${recipe.title} fetched successfully`,
+            message: `Reviews for recipe "${recipe.title}" fetched successfully`,
             data: reviews,
             count: reviews.length,
         });
     } catch (error) {
-        console.log("Error in get review of recipe", error.message);
-        console.log("Full error", error)
-        res.status(500).json({
+        console.error("Error in getReviewsByRecipe:", error);
+        return res.status(500).json({
             success: false,
             message: "Something went wrong while fetching reviews",
         });
     }
-}
+};
 
-
+// ==================== DELETE REVIEW ====================
 export const deleteReview = async (req, res) => {
     try {
         const { reviewId } = req.params;
-        const userId = req.userId
+        const userId = req.userId;
 
         if (!reviewId) {
             return res.status(400).json({
@@ -108,9 +121,7 @@ export const deleteReview = async (req, res) => {
             });
         }
 
-        const review = await Review.findOne({
-            where: { id: reviewId, userId }
-        })
+        const review = await Review.findOne({ where: { id: reviewId, userId } });
 
         if (!review) {
             return res.status(404).json({
@@ -119,19 +130,28 @@ export const deleteReview = async (req, res) => {
             });
         }
 
+        const recipe = await Recipe.findByPk(review.recipeId);
+
         await review.destroy();
-        res.status(200).json({
+
+        // Log activity for deleting review
+        await Activity.create({
+            type: "review",
+            userId,
+            recipeId: review.recipeId,
+            description: `Deleted review for recipe: "${recipe ? recipe.title : 'Unknown'}"`,
+        });
+
+        return res.status(200).json({
             success: true,
             message: "Review deleted successfully",
             data: { reviewId },
         });
-
     } catch (error) {
-        console.log("Error in delete review in review controller", error.message);
-        console.log("Full error", error)
-        res.status(500).json({
+        console.error("Error in deleteReview:", error);
+        return res.status(500).json({
             success: false,
             message: "Something went wrong while deleting review",
         });
     }
-}
+};
