@@ -3,7 +3,7 @@ import Review from "../models/reviewModel.js";
 import User from "../models/userModel.js";
 import Activity from "../models/activityModel.js";
 
-// ==================== ADD OR UPDATE REVIEW ====================
+
 export const addOrUpdateReview = async (req, res) => {
     try {
         const { recipeId, rating } = req.body;
@@ -32,7 +32,7 @@ export const addOrUpdateReview = async (req, res) => {
 
             // Log activity for updating review
             await Activity.create({
-                type: "review",
+                type: "review updated",
                 userId,
                 recipeId,
                 description: `Updated review for recipe: "${recipe.title}"`,
@@ -47,9 +47,9 @@ export const addOrUpdateReview = async (req, res) => {
 
         review = await Review.create({ recipeId, userId, rating });
 
-        // Log activity for adding new review
+        
         await Activity.create({
-            type: "review",
+            type: "review updated",
             userId,
             recipeId,
             description: `Added a new review for recipe: "${recipe.title}"`,
@@ -69,7 +69,7 @@ export const addOrUpdateReview = async (req, res) => {
     }
 };
 
-// ==================== GET REVIEWS BY RECIPE ====================
+
 export const getReviewsByRecipe = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -108,7 +108,6 @@ export const getReviewsByRecipe = async (req, res) => {
     }
 };
 
-// ==================== DELETE REVIEW ====================
 export const deleteReview = async (req, res) => {
     try {
         const { reviewId } = req.params;
@@ -136,7 +135,7 @@ export const deleteReview = async (req, res) => {
 
         // Log activity for deleting review
         await Activity.create({
-            type: "review",
+            type: "review deleted",
             userId,
             recipeId: review.recipeId,
             description: `Deleted review for recipe: "${recipe ? recipe.title : 'Unknown'}"`,

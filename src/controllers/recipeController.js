@@ -66,7 +66,7 @@ export const updateRecipe = async (req, res) => {
         const { id } = req.params;
         const userId = req.userId;
 
-        // Find recipe owned by this user
+        
         const recipe = await Recipe.findOne({ where: { id, userId } });
         if (!recipe) {
             return res.status(404).json({
@@ -75,7 +75,7 @@ export const updateRecipe = async (req, res) => {
             });
         }
 
-        // Collect update fields (support partial updates)
+        
         const {
             title,
             ingredients,
@@ -155,11 +155,11 @@ export const deleteRecipe = async (req, res) => {
             });
         }
 
-        // Log activity BEFORE deleting recipe
+        
         await Activity.create({
             type: "recipe_deleted",
             userId,
-            recipeId: recipe.id, // still exists
+            recipeId: recipe.id, 
             description: `Deleted recipe: "${recipe.title}"`,
         });
 

@@ -20,7 +20,7 @@ export const createCollection = async (req, res) => {
 
         // Log in activity feed
         await Activity.create({
-            type: "favorite",
+            type: "created collection",
             userId,
             description: `Created a new collection: "${collection.name}"`,
         });
@@ -90,7 +90,7 @@ export const addRecipeToCollection = async (req, res) => {
 
         // Log in activity feed
         await Activity.create({
-            type: "favorite",
+            type: "added recipe to collection",
             userId,
             recipeId: recipe.id,
             description: `Added recipe "${recipe.title}" to collection "${collection.name}"`,
@@ -217,7 +217,7 @@ export const removeRecipeFromCollection = async (req, res) => {
 
         // Log activity
         await Activity.create({
-            type: "favorite",
+            type: "remvoe recipe from collection",
             userId,
             recipeId,
             description: `Removed recipe "${favoriteEntry.recipeId}" from collection "${collection.name}"`,
@@ -271,7 +271,7 @@ export const deleteCollection = async (req, res) => {
 
         // Log activity
         await Activity.create({
-            type: "favorite",
+            type: "delete_collection",
             userId,
             description: `Deleted collection "${collection.name}"`,
         });

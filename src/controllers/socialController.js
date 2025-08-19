@@ -46,7 +46,7 @@ export const followUser = async (req, res) => {
 
         // Log activity for feed
         await Activity.create({
-            type: "follow",
+            type: "follow someone",
             userId: followerId,
             description: `Started following user: "${targetUser.fullName}"`,
         });
@@ -101,7 +101,7 @@ export const unfollowUser = async (req, res) => {
 
         // Log activity for feed
         await Activity.create({
-            type: "unfollow",
+            type: "unfollow someone",
             userId: followerId,
             description: `Unfollowed user: "${targetUser.fullName}"`,
         });
@@ -124,7 +124,7 @@ export const getActivityFeed = async (req, res) => {
     try {
         const userId = req.userId;
 
-        // Get all userIds that the current user is following
+       
         const following = await Follow.findAll({
             where: { followerId: userId },
             attributes: ["followingId"],
@@ -141,7 +141,7 @@ export const getActivityFeed = async (req, res) => {
             });
         }
 
-        // Fetch activities of followed users
+        
         const activities = await Activity.findAll({
             where: { userId: { [Op.in]: followingIds } },
             include: [
