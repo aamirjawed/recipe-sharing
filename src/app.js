@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js'
 import profileManageRoutes from './routes/profileManageRoute.js'
 import recipeRoutes from "./routes/recipeRoutes.js";
 import favoriteCollectionRoutes from './routes/favoriteCollectionRoutes.js'
+import reviewRoutes from './routes/reviewRoutes.js'
 
 
 
@@ -44,6 +45,9 @@ app.use("/api/v1/recipes", recipeRoutes);
 
 // favorite collection routes
 app.use("/api/v1/favorites", favoriteCollectionRoutes);
+
+// review routes
+app.use("/api/v1/reviews", reviewRoutes)
 
 
 
