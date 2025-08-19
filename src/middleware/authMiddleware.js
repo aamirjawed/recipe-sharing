@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
-
-
+import User from '../models/userModel.js'
 
 const authUser = async (req, res, next) => {
     try {
@@ -18,7 +17,20 @@ const authUser = async (req, res, next) => {
         const decodedMessage = jwt.verify(token, process.env.JWT_SECRET_KEY)
         const { id } = decodedMessage
 
-        req.userId = id
+        const user = await User.findByPk(id)
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found. Unauthorized"
+            })
+        }
+
+        
+        req.userId = id  
+        
+        req.role = user.role  
+
         next()
 
     } catch (error) {
@@ -30,6 +42,5 @@ const authUser = async (req, res, next) => {
         })
     }
 }
-
 
 export default authUser

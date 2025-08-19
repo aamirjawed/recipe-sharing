@@ -8,6 +8,7 @@ import recipeRoutes from "./routes/recipeRoutes.js";
 import favoriteCollectionRoutes from './routes/favoriteCollectionRoutes.js'
 import reviewRoutes from './routes/reviewRoutes.js'
 import socialRoutes from './routes/socialRoutes.js'
+import adminRoutes from "./routes/adminRoutes.js"
 
 
 
@@ -52,11 +53,14 @@ app.use("/api/v1/reviews", reviewRoutes)
 // social routes
 app.use("/api/v1", socialRoutes)
 
+// admin routes
+app.use("/api/v1/admin", adminRoutes)
 
 
 
 
-db.sync({alter:true}).then(() => {
+
+db.sync().then(() => {
     app.listen(PORT, ()=>{
     console.log(`Server is running on: ${PORT}`)
 })
