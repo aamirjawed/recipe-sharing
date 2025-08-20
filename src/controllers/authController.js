@@ -95,14 +95,14 @@ export const signinController = async (req, res) => {
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: "1d" }
+            
         )
 
         res.cookie("token", token, {
             httpOnly: true,
             secure: false,
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 1 * 60 * 60 * 1000
         })
 
         res.status(200).json({

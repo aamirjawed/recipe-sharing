@@ -1,4 +1,4 @@
-import { DataTypes } from "Sequelize";
+import { DataTypes } from "sequelize";
 import sequelize from "../db/db-connection.js";
 import User from "./userModel.js";
 
@@ -7,6 +7,10 @@ const Recipe = sequelize.define("recipes", {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
+  },
+  userId:{
+    type:DataTypes.INTEGER,
+    allowNull:false
   },
   title: {
     type: DataTypes.STRING,
