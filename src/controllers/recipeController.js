@@ -2,7 +2,7 @@ import Recipe from "../models/recipeModel.js";
 import User from "../models/userModel.js";
 import Activity from "../models/activityModel.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 
 
 export const createRecipe = async (req, res) => {
@@ -208,7 +208,10 @@ export const getAllRecipes = async (req, res) => {
 };
 
 
+
+
 export const getRecipeById = async (req, res) => {
+   
     try {
         const { id } = req.params;
 
@@ -296,3 +299,30 @@ export const searchRecipes = async (req, res) => {
         });
     }
 };
+
+export const getMyRecipes = async(req, res) =>{
+    try {
+        const myRecipes = await Recipe.findAll({userId:req.userId})
+
+        if(!myRecipes || myRecipes.length === 0){
+            return res.status(404).json({
+                success:false,
+                message:"Recipe not found"
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"All your recipes",
+            data:myRecipes,
+            count:myRecipes.length
+        })
+    } catch (error) {
+        console.log("Error in get my recipes in recipe controller", error.message)
+        console.log("Full error", error)
+        res.status(500).json({
+            success:true,
+            message:"Something went wrong while fetching recipes"
+        })
+    }
+}
