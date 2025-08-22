@@ -300,29 +300,41 @@ export const searchRecipes = async (req, res) => {
     }
 };
 
-export const getMyRecipes = async(req, res) =>{
+export const getMyRecipes = async(req, res) => {
     try {
-        const myRecipes = await Recipe.findAll({userId:req.userId})
+       
+        const myRecipes = await Recipe.findAll({
+            where: {
+                userId: req.userId
+            },
+            include: [{
+                model: User,
+                attributes: ['id', 'fullName', 'email']
+            }]
+        });
 
         if(!myRecipes || myRecipes.length === 0){
             return res.status(404).json({
-                success:false,
-                message:"Recipe not found"
-            })
+                success: false,
+                message: "No recipes found"
+            });
         }
 
         return res.status(200).json({
-            success:true,
-            message:"All your recipes",
-            data:myRecipes,
-            count:myRecipes.length
-        })
+            success: true,
+            message: "All your recipes",
+            data: myRecipes,
+            count: myRecipes.length
+        });
+        
     } catch (error) {
-        console.log("Error in get my recipes in recipe controller", error.message)
-        console.log("Full error", error)
+        console.log("Error in get my recipes in recipe controller", error.message);
+        console.log("Full error", error);
+        
+       
         res.status(500).json({
-            success:true,
-            message:"Something went wrong while fetching recipes"
-        })
+            success: false, 
+            message: "Something went wrong while fetching recipes"
+        });
     }
-}
+};

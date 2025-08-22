@@ -13,20 +13,19 @@ import { upload } from "../middleware/multerMiddleware.js";
 
 const router = express.Router();
 
-
-router.get("/get-my-recipes", authUser, getMyRecipes)
-
-
-// Public
+// Public routes
 router.get("/", getAllRecipes);
 router.get("/search", searchRecipes); 
+
+// Protected routes (specific paths before parameterized ones)
+router.get("/get-my-recipes", authUser, getMyRecipes);
+
+// Public parameterized route (must come after specific paths)
 router.get("/:id", getRecipeById);
 
-
-
-// Protected
+// Protected routes
 router.post("/", authUser, upload.single("image"), createRecipe);
-router.put("/:id", authUser, updateRecipe);
+router.put("/:id", authUser, updateRecipe); 
 router.delete("/:id", authUser, deleteRecipe);
 
 export default router;
