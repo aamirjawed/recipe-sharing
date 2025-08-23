@@ -181,7 +181,7 @@ export const getRecipesInCollection = async (req, res) => {
 
 export const removeRecipeFromCollection = async (req, res) => {
     try {
-        const { collectionId, recipeId } = req.body;
+        const { collectionId,recipeId } = req.params;
         const userId = req.userId;
 
         if (!collectionId || !recipeId) {
@@ -192,7 +192,7 @@ export const removeRecipeFromCollection = async (req, res) => {
         }
 
         const collection = await FavoriteCollection.findOne({
-            where: { id: collectionId, userId }
+            where: { id: collectionId, userId:userId }
         });
 
         if (!collection) {

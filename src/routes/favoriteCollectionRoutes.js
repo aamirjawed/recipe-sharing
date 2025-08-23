@@ -12,7 +12,7 @@ router.post("/",  createCollection)
 router.post("/add", addRecipeToCollection);
 router.get("/collections", getUserCollections);
 router.get("/collections/:collectionId/recipes", getRecipesInCollection);
-router.delete("/remove", removeRecipeFromCollection)
+router.delete("/remove/:collectionId/:recipeId", removeRecipeFromCollection)
 router.delete("/collections/:collectionId", deleteCollection)
 
 export default router
