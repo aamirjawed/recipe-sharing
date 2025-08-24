@@ -1,4 +1,4 @@
-import {DataTypes} from 'Sequelize'
+import {DataTypes} from 'sequelize'
 import sequelize from '../db/db-connection.js'
 import FavoriteCollection from './favouriteCollectionModel.js'
 import Recipe from './recipeModel.js'
