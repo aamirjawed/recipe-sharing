@@ -95,15 +95,16 @@ export const signinController = async (req, res) => {
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET_KEY,
-            
+
         )
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
-            maxAge: 1 * 60 * 60 * 1000
-        })
+            secure: true,
+            sameSite: "None",
+            maxAge: 1 * 60 * 60 * 1000 // 1 hour
+        });
+
 
         res.status(200).json({
             success: true,
@@ -130,23 +131,23 @@ export const signinController = async (req, res) => {
 
 
 export const logoutController = (req, res) => {
-  try {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // only secure in prod
-      sameSite: "strict",
-    });
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // only secure in prod
+            sameSite: "strict",
+        });
 
-    return res.status(200).json({
-      success: true,
-      message: "User logged out successfully",
-    });
-  } catch (error) {
-    console.error("Error in logoutController:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Error while logging out",
-    });
-  }
+        return res.status(200).json({
+            success: true,
+            message: "User logged out successfully",
+        });
+    } catch (error) {
+        console.error("Error in logoutController:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Error while logging out",
+        });
+    }
 };
 
